@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es" data-document-id="registro-editable-v3">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Plantilla editable de registro: cambia el NIT, el dígito de verificación, la razón social y la fecha directamente en los campos grises.">
+  <meta name="theme-color" content="#315747">
+  <title>Registro editable</title>
+  <style>
+    :root { color-scheme: light; font-family: Arial, Helvetica, sans-serif; --green: #33594b; --label: #e4f2ed; --field: #f3f3f3; --size: clamp(1rem, 2.85vw, 1.875rem); }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fff; color: #0a0a0a; }
+    main { margin: 56px 8px 0; border-top: 4px solid #0800dc; padding: 73px 4px 0; }
+    form { margin: 0; }
+    .row { display: grid; gap: 7px; margin-bottom: 10px; }
+    .identity { grid-template-columns: 25.6% 29% 25.6% 4.5%; gap: .65%; align-items: start; }
+    .company { grid-template-columns: 34.3% minmax(0, 1fr); }
+    .date { grid-template-columns: 31.4% minmax(0, 1fr); }
+    label, .notice { background: var(--label); border-left: 11px solid var(--green); color: var(--green); font-size: var(--size); font-weight: 400; line-height: 1.18; }
+    label { min-width: 0; min-height: 58px; display: flex; align-items: flex-start; padding: 10px 12px 10px 28px; overflow-wrap: anywhere; cursor: text; }
+    .company label, .date label { min-height: 93px; }
+    input { display: block; width: 100%; min-width: 0; border: 0; border-radius: 0; margin: 2px 0; padding: 4px; background: var(--field); color: #0a0a0a; font-family: inherit; font-size: var(--size); line-height: 1.2; height: 54px; outline-offset: -2px; }
+    .company input, .date input { height: calc(100% - 4px); min-height: 89px; padding-top: 4px; padding-bottom: 48px; }
+    input:hover { background: #ededed; }
+    input:focus { outline: 2px solid var(--green); background: #f6f7f6; }
+    input[aria-invalid="true"] { outline: 2px solid #b23b32; }
+    .notice { margin: 0; padding: 11px 22px 12px 28px; min-height: 94px; }
+    .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 32px 0 0; padding: 18px 2px; border-top: 1px solid #e8ecea; color: #50635b; font-size: 14px; line-height: 1.5; }
+    .help { flex: 1 1 330px; }
+    .help p { margin: 0; }
+    .help .disclaimer { color: #6c7772; margin-top: 3px; }
+    #save-state { color: var(--green); }
+    #save-state.error { color: #a12b23; }
+    button { appearance: none; font: inherit; font-weight: 600; border: 1px solid #c6d7ce; border-radius: 6px; padding: 10px 14px; min-height: 42px; cursor: pointer; background: white; color: var(--green); }
+    button.primary { background: var(--green); border-color: var(--green); color: white; }
+    button:hover { filter: brightness(.94); }
+    button:focus-visible { outline: 3px solid #718c7e; outline-offset: 3px; }
+    @media (min-width: 1250px) { main { max-width: 1100px; margin-left: auto; margin-right: auto; } }
+    @media (max-width: 700px) {
+      :root { --size: clamp(.9rem, 2.82vw, 1.25rem); }
+      main { margin: 28px 8px 0; padding: 38px 0 0; border-top-width: 3px; }
+      .row { margin-bottom: 7px; gap: 5px; }
+      .identity { grid-template-columns: 25.6% 29% 25.6% 7%; gap: .65%; }
+      label, .notice { border-left-width: 6px; }
+      label { padding: 8px 4px 8px 9px; min-height: 40px; }
+      input { height: 36px; margin: 2px 0; padding: 4px 2px; }
+      .company label, .date label { min-height: 65px; }
+      .company input, .date input { min-height: 61px; padding-bottom: 28px; }
+      .notice { min-height: 70px; padding: 10px 10px 10px 12px; }
+      .tools { margin-top: 24px; padding: 16px 0; }
+      .help { flex-basis: 100%; }
+    }
+    @media print {
+      .tools { display: none; }
+      main { margin-top: 35px; }
+      input, label, .notice { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      input { outline: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main aria-label="Registro editable">
+    <form id="record-form" autocomplete="off" novalidate>
+      <div class="row identity">
+        <label for="nit">???label_nit???</label>
+        <input id="nit" name="nit" aria-label="NIT" type="text" inputmode="numeric" maxlength="20" value="900067444" spellcheck="false">
+        <label for="dv">???label_dv???</label>
+        <input id="dv" name="dv" aria-label="Dígito de verificación" type="text" inputmode="numeric" maxlength="1" value="1" spellcheck="false">
+      </div>
+      <div class="row company">
+        <label for="razon-social"><span>???<br>label_razon_social???</span></label>
+        <input id="razon-social" name="razonSocial" aria-label="Razón social" type="text" maxlength="200" value="GENSER POWER COLOMBIA" spellcheck="false">
+      </div>
+      <div class="row date">
+        <label for="fecha"><span>???<br>label_fec_actual???</span></label>
+        <input id="fecha" name="fecha" aria-label="Fecha, día-mes-año" aria-describedby="date-help" type="text" inputmode="numeric" maxlength="10" value="25-11-2026" spellcheck="false">
+      </div>
+    </form>
+    <p class="notice">Registro Activo: Datos de esta plantilla ingresados manualmente.</p>
+    <section class="tools" aria-label="Opciones de la página">
+      <div class="help">
+        <p>Haz clic en los campos grises para editarlos. <span id="date-help">Fecha: DD-MM-AAAA.</span></p>
+        <p id="save-state" role="status" aria-live="polite">Los cambios se guardan en este navegador.</p>
+        <p class="disclaimer">Plantilla editable. Los datos se ingresan manualmente; no consulta bases de datos.</p>
+      </div>
+      <button type="button" id="download" class="primary">Descargar página</button>
+      <button type="button" id="print">Imprimir</button>
+    </section>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const fields = Array.from(document.querySelectorAll('#record-form input'));
+      const status = document.getElementById('save-state');
+      const storageKey = document.documentElement.dataset.documentId;
+      let saveTimer;
+
+      function showStatus(message, error = false) {
+        status.textContent = message;
+        status.classList.toggle('error', error);
+      }
+
+      function persist() {
+        const values = {};
+        fields.forEach(field => {
+          values[field.name] = field.value;
+          field.setAttribute('value', field.value);
+        });
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(values));
+          showStatus('Cambios guardados en este navegador.');
+        } catch {
+          showStatus('No se pudo guardar en este navegador. Descarga la página para conservar tus cambios.', true);
+        }
+      }
+
+      try {
+        const stored = JSON.parse(localStorage.getItem(storageKey) || 'null');
+        if (stored && typeof stored === 'object') {
+          fields.forEach(field => {
+            if (typeof stored[field.name] === 'string') {
+              field.value = stored[field.name].slice(0, field.maxLength);
+              field.setAttribute('value', field.value);
+            }
+          });
+          showStatus('Datos guardados recuperados de este navegador.');
+        }
+      } catch {
+        showStatus('Descarga la página para conservar una copia de tus datos.');
+      }
+
+      fields.forEach(field => {
+        field.addEventListener('input', () => {
+          field.removeAttribute('aria-invalid');
+          clearTimeout(saveTimer);
+          persist();
+        });
+      });
+
+      const dateField = document.getElementById('fecha');
+      dateField.addEventListener('blur', () => {
+        if (!dateField.value.trim()) return;
+        const match = /^(\d{2})-(\d{2})-(\d{4})$/.exec(dateField.value);
+        let valid = false;
+        if (match) {
+          const [, day, month, year] = match.map(Number);
+          const date = new Date(0);
+          date.setUTCHours(0, 0, 0, 0);
+          date.setUTCFullYear(year, month - 1, day);
+          valid = date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+        }
+        dateField.setAttribute('aria-invalid', String(!valid));
+        if (!valid) showStatus('Revisa la fecha. Usa un día válido con el formato DD-MM-AAAA.', true);
+      });
+
+      document.getElementById('record-form').addEventListener('submit', event => event.preventDefault());
+      document.getElementById('print').addEventListener('click', () => window.print());
+      document.getElementById('download').addEventListener('click', () => {
+        persist();
+        const copy = document.documentElement.cloneNode(true);
+        copy.dataset.documentId = 'registro-editable-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+        copy.querySelectorAll('input').forEach(field => field.removeAttribute('aria-invalid'));
+        const savedStatus = copy.querySelector('#save-state');
+        savedStatus.textContent = 'Los cambios se guardan en este navegador.';
+        savedStatus.classList.remove('error');
+        const blob = new Blob(['<!DOCTYPE html>\n', copy.outerHTML], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'registro-editable.html';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        showStatus('Descarga preparada con los datos actuales.');
+      });
+    })();
+  </script>
+</body>
+</html>
