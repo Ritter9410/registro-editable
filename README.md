@@ -16,4 +16,4 @@ La fecha usa el formato DD-MM-AAAA y la zona horaria `America/Bogota`. Se calcul
 
 Para cambiar los valores publicados para todos, actualiza los atributos `value` de los tres campos editables en `index.html` y cambia `data-document-id` a una versión nueva. Así los navegadores no recuperan los valores de la versión anterior. Guarda los cambios en `main` para volver a publicar.
 
-El botón Descargar página conserva los valores visibles en una copia HTML independiente.
+El guardado es automático. La página no muestra una barra de instrucciones ni botones de descarga o impresión. La impresión sigue disponible desde el menú del navegador.
