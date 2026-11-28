@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" data-document-id="registro-editable-v3">
+<html lang="es" data-document-id="registro-editable-v4">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Plantilla editable de registro: cambia el NIT, el dígito de verificación, la razón social y la fecha directamente en los campos grises.">
+  <meta name="description" content="Plantilla de registro con NIT, dígito de verificación y razón social editables, y fecha de consulta automática según la hora de Colombia.">
   <meta name="theme-color" content="#315747">
   <title>Registro editable</title>
   <style>
@@ -63,23 +63,23 @@
     <form id="record-form" autocomplete="off" novalidate>
       <div class="row identity">
         <label for="nit">???label_nit???</label>
-        <input id="nit" name="nit" aria-label="NIT" type="text" inputmode="numeric" maxlength="20" value="900067444" spellcheck="false">
+        <input id="nit" name="nit" aria-label="NIT" type="text" inputmode="numeric" maxlength="20" value="901396881" spellcheck="false">
         <label for="dv">???label_dv???</label>
         <input id="dv" name="dv" aria-label="Dígito de verificación" type="text" inputmode="numeric" maxlength="1" value="1" spellcheck="false">
       </div>
       <div class="row company">
         <label for="razon-social"><span>???<br>label_razon_social???</span></label>
-        <input id="razon-social" name="razonSocial" aria-label="Razón social" type="text" maxlength="200" value="GENSER POWER COLOMBIA" spellcheck="false">
+        <input id="razon-social" name="razonSocial" aria-label="Razón social" type="text" maxlength="200" value="STARLINK CO S.A.S" spellcheck="false">
       </div>
       <div class="row date">
-        <label for="fecha"><span>???<br>label_fec_actual???</span></label>
-        <input id="fecha" name="fecha" aria-label="Fecha, día-mes-año" aria-describedby="date-help" type="text" inputmode="numeric" maxlength="10" value="25-11-2026" spellcheck="false">
+        <label for="fecha">Fecha de consulta</label>
+        <input id="fecha" name="fecha" aria-label="Fecha de consulta, día-mes-año" aria-describedby="date-help" type="text" maxlength="10" value="" placeholder="Fecha automática" readonly spellcheck="false">
       </div>
     </form>
     <p class="notice">Registro Activo: Datos de esta plantilla ingresados manualmente.</p>
     <section class="tools" aria-label="Opciones de la página">
       <div class="help">
-        <p>Haz clic en los campos grises para editarlos. <span id="date-help">Fecha: DD-MM-AAAA.</span></p>
+        <p>Haz clic en el NIT, DV o razón social para editarlos. <span id="date-help">Fecha de consulta automática según la hora de Colombia.</span></p>
         <p id="save-state" role="status" aria-live="polite">Los cambios se guardan en este navegador.</p>
         <p class="disclaimer">Plantilla editable. Los datos se ingresan manualmente; no consulta bases de datos.</p>
       </div>
@@ -91,9 +91,26 @@
     (() => {
       'use strict';
       const fields = Array.from(document.querySelectorAll('#record-form input'));
+      const editableFields = fields.filter(field => !field.readOnly);
+      const dateField = document.getElementById('fecha');
       const status = document.getElementById('save-state');
       const storageKey = document.documentElement.dataset.documentId;
-      let saveTimer;
+      const dateFormatter = new Intl.DateTimeFormat('es-CO', {
+        timeZone: 'America/Bogota', day: '2-digit', month: '2-digit', year: 'numeric'
+      });
+
+      function refreshConsultationDate() {
+        const parts = dateFormatter.formatToParts(new Date());
+        const part = type => parts.find(item => item.type === type).value;
+        dateField.value = [part('day'), part('month'), part('year')].join('-');
+        dateField.setAttribute('value', dateField.value);
+      }
+
+      refreshConsultationDate();
+      window.addEventListener('pageshow', refreshConsultationDate);
+      window.addEventListener('beforeprint', refreshConsultationDate);
+      document.addEventListener('visibilitychange', refreshConsultationDate);
+      setInterval(refreshConsultationDate, 60000);
 
       function showStatus(message, error = false) {
         status.textContent = message;
@@ -102,7 +119,7 @@
 
       function persist() {
         const values = {};
-        fields.forEach(field => {
+        editableFields.forEach(field => {
           values[field.name] = field.value;
           field.setAttribute('value', field.value);
         });
@@ -117,7 +134,7 @@
       try {
         const stored = JSON.parse(localStorage.getItem(storageKey) || 'null');
         if (stored && typeof stored === 'object') {
-          fields.forEach(field => {
+          editableFields.forEach(field => {
             if (typeof stored[field.name] === 'string') {
               field.value = stored[field.name].slice(0, field.maxLength);
               field.setAttribute('value', field.value);
@@ -129,33 +146,17 @@
         showStatus('Descarga la página para conservar una copia de tus datos.');
       }
 
-      fields.forEach(field => {
+      editableFields.forEach(field => {
         field.addEventListener('input', () => {
           field.removeAttribute('aria-invalid');
-          clearTimeout(saveTimer);
           persist();
         });
-      });
-
-      const dateField = document.getElementById('fecha');
-      dateField.addEventListener('blur', () => {
-        if (!dateField.value.trim()) return;
-        const match = /^(\d{2})-(\d{2})-(\d{4})$/.exec(dateField.value);
-        let valid = false;
-        if (match) {
-          const [, day, month, year] = match.map(Number);
-          const date = new Date(0);
-          date.setUTCHours(0, 0, 0, 0);
-          date.setUTCFullYear(year, month - 1, day);
-          valid = date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
-        }
-        dateField.setAttribute('aria-invalid', String(!valid));
-        if (!valid) showStatus('Revisa la fecha. Usa un día válido con el formato DD-MM-AAAA.', true);
       });
 
       document.getElementById('record-form').addEventListener('submit', event => event.preventDefault());
       document.getElementById('print').addEventListener('click', () => window.print());
       document.getElementById('download').addEventListener('click', () => {
+        refreshConsultationDate();
         persist();
         const copy = document.documentElement.cloneNode(true);
         copy.dataset.documentId = 'registro-editable-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
